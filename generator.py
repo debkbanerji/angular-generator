@@ -92,7 +92,7 @@ SOFTWARE.
 
 def create_serverjs():
     print ("Creating server.js...")
-    filename = os.path.join(os.path.dirname(__file__), path, ".server.js")
+    filename = os.path.join(os.path.dirname(__file__), path, "server.js")
     with open(filename, "w") as output_file:
         output_file.write("""var express = require("express");
 var os = require('os');
@@ -156,10 +156,47 @@ app.listen(port, function () {
 
 
 def create_readmemd():
-    print ("Creating README.d...")
+    print ("Creating README.md...")
     filename = os.path.join(os.path.dirname(__file__), path, "README.md")
     with open(filename, "w") as output_file:
         output_file.write("# " + project_name + "\n" + project_description)
+        output_file.close()
+
+
+def create_packagejson():
+    print ("Creating package.json...")
+    filename = os.path.join(os.path.dirname(__file__), path, "package.json")
+    with open(filename, "w") as output_file:
+        output_file.write("""{
+  \"name\": \"""" + kebab_case(project_name) + "\",\n")
+        output_file.write("""  \"version\": \"1.0.0\",
+  \"description\": \"""" + project_description + "\",\n")
+        output_file.write("""  \"main\": \"server.js\",
+  \"scripts\": {
+    \"test\": \"echo \\\"Error: no test specified\\\" && exit 1\",
+    \"start\": \"node server.js\"
+  },\n""")
+
+        if (has_github_url):
+            output_file.write("""  \"repository\": {
+    \"type\": \"git\",
+    \"url\": \"git+""" + github_url + """.git\"
+  },\n""")
+
+        output_file.write("""  \"author\": \"""" + creator_name + """\",
+  "license": "MIT",\n""")
+
+        if (has_github_url):
+            output_file.write("""  \"bugs\": {
+    \"url\": \"""" + github_url + """/issues\"
+  },\n""")
+            output_file.write("""  \"homepage\": \"""" + github_url + """#readme\",\n""")
+
+        output_file.write("""  \"dependencies\": {
+    \"express\": \"^4.14.0\"
+  }
+}""")
+
         output_file.close()
 
 
@@ -187,13 +224,13 @@ project_name = raw_input("\nEnter project name:\n")
 project_description = raw_input("\nEnter project description:\n")
 
 # Asking about GitHub repo
-choice = raw_input("Add github repository? [y/N]:")
+choice = raw_input("Specify github repository? [y/N]:")
 choice = choice.lower()
 has_github_url = (choice == "y") | (choice == "yes")
 
 if has_github_url:
     print("\nEnter github repository url in the format:\n")
-    github_url = raw_input("https://github.com/user-name/repository-name")
+    github_url = raw_input("https://github.com/user-name/repository-name\n")
 
 path = kebab_case(project_name)
 
@@ -201,5 +238,6 @@ create_main_directory()
 create_gitignore()
 
 create_license()
+create_packagejson()
 create_readmemd()
 create_serverjs()
