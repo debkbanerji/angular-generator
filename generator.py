@@ -1,6 +1,8 @@
 import os
 import re
 
+from datetime import date
+
 
 def create_main_directory():
     print ("Creating project directory...")
@@ -9,9 +11,9 @@ def create_main_directory():
 
 
 def create_gitignore():
-    print ("Creating .gitignorep...")
-    fn = os.path.join(os.path.dirname(__file__), path, ".gitignore")
-    with open(fn, "w") as output_file:
+    print ("Creating .gitignore...")
+    filename = os.path.join(os.path.dirname(__file__), path, ".gitignore")
+    with open(filename, "w") as output_file:
         output_file.write("""# Logs
 logs
 *.log
@@ -59,6 +61,100 @@ credentials.js
         output_file.close()
 
 
+def create_license():
+    print ("Creating .gitignore...")
+    filename = os.path.join(os.path.dirname(__file__), path, "LICENSE")
+    with open(filename, "w") as output_file:
+        output_file.write("""The MIT License (MIT)
+
+Copyright (c) """ + str(date.today().year) + """ """ +  creator_name + """
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+""")
+        output_file.close()
+
+
+def create_serverjs():
+    print ("Creating server.js...")
+    filename = os.path.join(os.path.dirname(__file__), path, ".serverjs")
+    with open(filename, "w") as output_file:
+        output_file.write("""var express = require("express");
+var os = require('os');
+const path = require('path');
+
+var app = express();
+
+var port = process.env.PORT || 3000;
+// var database = process.env.DATABASE || db;
+// console.log("Database: " + database);
+/*
+ To set a port other than 3000:
+ in Unix:
+
+ $ PORT=1234 node server.js
+
+ in Windows:
+
+ set PORT=1234
+ node server.js
+ */
+
+var ifaces = os.networkInterfaces();
+
+Object.keys(ifaces).forEach(function (ifname) {
+    var alias = 0;
+
+    ifaces[ifname].forEach(function (iface) {
+        if ('IPv4' !== iface.family || iface.internal !== false) {
+            // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+            return;
+        }
+
+        if (alias >= 1) {
+            // this single interface has multiple ipv4 addresses
+            console.log(ifname + ':' + alias, iface.address);
+        } else {
+            // this interface has only one ipv4 adress
+            console.log(ifname, iface.address);
+        }
+        ++alias;
+    });
+});
+
+app.use("/server.js",function (req, res, next) {
+    res.redirect("/")
+});
+
+app.use(express.static(path.join(__dirname, "app")));
+
+
+app.all('*', function (req, res) {
+    res.redirect("/");
+});
+
+app.listen(port, function () {
+    console.log('listening on port ' + port);
+    // console.log('press Ctrl + C to shut down server');
+});""")
+        output_file.close()
+
+
 def camel_case(text):
     components = text.split(' ')
     return components[0].lower() + "".join(x.capitalize() for x in components[1:])
@@ -76,9 +172,13 @@ print ("""Note: when entering a module name or the project name,
 use lowercase words separated by spaces.
 Case conversion will take place automatically.""")
 
-project_name = raw_input("\nEnter project name\n")
+creator_name = raw_input("\nEnter your name:\n")
+
+project_name = raw_input("\nEnter project name:\n")
 
 path = kebab_case(project_name)
 
 create_main_directory()
 create_gitignore()
+create_serverjs()
+create_license()
