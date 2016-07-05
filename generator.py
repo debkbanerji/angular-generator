@@ -62,12 +62,12 @@ credentials.js
 
 
 def create_license():
-    print ("Creating .gitignore...")
+    print ("Creating LICENSE...")
     filename = os.path.join(os.path.dirname(__file__), path, "LICENSE")
     with open(filename, "w") as output_file:
         output_file.write("""The MIT License (MIT)
 
-Copyright (c) """ + str(date.today().year) + """ """ +  creator_name + """
+Copyright (c) """ + str(date.today().year) + """ """ + creator_name + """
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -92,7 +92,7 @@ SOFTWARE.
 
 def create_serverjs():
     print ("Creating server.js...")
-    filename = os.path.join(os.path.dirname(__file__), path, ".serverjs")
+    filename = os.path.join(os.path.dirname(__file__), path, ".server.js")
     with open(filename, "w") as output_file:
         output_file.write("""var express = require("express");
 var os = require('os');
@@ -155,6 +155,14 @@ app.listen(port, function () {
         output_file.close()
 
 
+def create_readmemd():
+    print ("Creating README.d...")
+    filename = os.path.join(os.path.dirname(__file__), path, "README.md")
+    with open(filename, "w") as output_file:
+        output_file.write("# " + project_name + "\n" + project_description)
+        output_file.close()
+
+
 def camel_case(text):
     components = text.split(' ')
     return components[0].lower() + "".join(x.capitalize() for x in components[1:])
@@ -176,9 +184,22 @@ creator_name = raw_input("\nEnter your name:\n")
 
 project_name = raw_input("\nEnter project name:\n")
 
+project_description = raw_input("\nEnter project description:\n")
+
+# Asking about GitHub repo
+choice = raw_input("Add github repository? [y/N]:")
+choice = choice.lower()
+has_github_url = (choice == "y") | (choice == "yes")
+
+if has_github_url:
+    print("\nEnter github repository url in the format:\n")
+    github_url = raw_input("https://github.com/user-name/repository-name")
+
 path = kebab_case(project_name)
 
 create_main_directory()
 create_gitignore()
-create_serverjs()
+
 create_license()
+create_readmemd()
+create_serverjs()
