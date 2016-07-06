@@ -4,15 +4,15 @@ import re
 from datetime import date
 
 
-def create_main_directory():
-    print ("Creating project directory...")
+def create_directory(path):
+    print ("Creating directory \'" + path + "\'...")
     if not os.path.exists(path):
         os.makedirs(path)
 
 
 def create_gitignore():
     print ("Creating .gitignore...")
-    filename = os.path.join(os.path.dirname(__file__), path, ".gitignore")
+    filename = os.path.join(os.getcwd(), path, ".gitignore")
     with open(filename, "w") as output_file:
         output_file.write("""# Logs
 logs
@@ -63,7 +63,7 @@ credentials.js
 
 def create_license():
     print ("Creating LICENSE...")
-    filename = os.path.join(os.path.dirname(__file__), path, "LICENSE")
+    filename = os.path.join(os.getcwd(), path, "LICENSE")
     with open(filename, "w") as output_file:
         output_file.write("""The MIT License (MIT)
 
@@ -92,7 +92,7 @@ SOFTWARE.
 
 def create_serverjs():
     print ("Creating server.js...")
-    filename = os.path.join(os.path.dirname(__file__), path, "server.js")
+    filename = os.path.join(os.getcwd(), path, "server.js")
     with open(filename, "w") as output_file:
         output_file.write("""var express = require("express");
 var os = require('os');
@@ -157,7 +157,7 @@ app.listen(port, function () {
 
 def create_readmemd():
     print ("Creating README.md...")
-    filename = os.path.join(os.path.dirname(__file__), path, "README.md")
+    filename = os.path.join(os.getcwd(), path, "README.md")
     with open(filename, "w") as output_file:
         output_file.write("# " + project_name + "\n" + project_description)
         output_file.close()
@@ -165,7 +165,7 @@ def create_readmemd():
 
 def create_packagejson():
     print ("Creating package.json...")
-    filename = os.path.join(os.path.dirname(__file__), path, "package.json")
+    filename = os.path.join(os.getcwd(), path, "package.json")
     with open(filename, "w") as output_file:
         output_file.write("""{
   \"name\": \"""" + kebab_case(project_name) + "\",\n")
@@ -177,7 +177,7 @@ def create_packagejson():
     \"start\": \"node server.js\"
   },\n""")
 
-        if (has_github_url):
+        if has_github_url:
             output_file.write("""  \"repository\": {
     \"type\": \"git\",
     \"url\": \"git+""" + github_url + """.git\"
@@ -186,7 +186,7 @@ def create_packagejson():
         output_file.write("""  \"author\": \"""" + creator_name + """\",
   "license": "MIT",\n""")
 
-        if (has_github_url):
+        if has_github_url:
             output_file.write("""  \"bugs\": {
     \"url\": \"""" + github_url + """/issues\"
   },\n""")
@@ -226,18 +226,56 @@ project_description = raw_input("\nEnter project description:\n")
 # Asking about GitHub repo
 choice = raw_input("Specify github repository? [y/N]:")
 choice = choice.lower()
-has_github_url = (choice == "y") | (choice == "yes")
+has_github_url = (choice == "y") or (choice == "yes")
 
 if has_github_url:
-    print("\nEnter github repository url in the format:\n")
+    print("\nEnter github repository url in the format: \n")
     github_url = raw_input("https://github.com/user-name/repository-name\n")
 
+choice = raw_input("Add Firebase Boilerplate? [y/N]: ")
+choice = choice.lower()
+firebase_boilerplate = (choice == "y") or (choice == "yes")
+
+modules = []
+i = 0
+add_modules = True
+
+print("\nSpecify your module names")
+
+while add_modules:
+    module_name = ""
+    while module_name == "":
+        module_name = raw_input("\nEnter module name:\n")
+    if not modules.__contains__(module_name):
+        modules.append(module_name)
+    choice = raw_input("Add more modules? (Current number of modules: " + str(len(modules)) + ") [y/N]: ")
+    choice = choice.lower()
+    add_modules = (choice == "y") or (choice == "yes")
+
+choice = raw_input("Add 'about' module? (Current number of modules: " + str(len(modules)) + ") [y/N]: ")
+choice = choice.lower()
+add_about = (choice == "y") or (choice == "yes")
+
+choice = raw_input("Add 'nav-bar' module? (Current number of modules: " + str(len(modules)) + ") [y/N]: ")
+choice = choice.lower()
+add_navbar = (choice == "y") or (choice == "yes")
+
+
+print modules
+
 path = kebab_case(project_name)
+app_path = os.path.join(path, "app")
+assets_path = os.path.join(path, "assets")
 
-create_main_directory()
+print ("\n")
+create_directory(path)
 create_gitignore()
-
 create_license()
 create_packagejson()
 create_readmemd()
 create_serverjs()
+
+create_directory(app_path)
+create_directory(assets_path)
+
+print("\nFinished\n\nDon't forget to run npm install from within the project directory")
