@@ -4,6 +4,16 @@ import re
 from datetime import date
 
 
+def camel_case(text):
+    components = text.split(' ')
+    return components[0].lower() + "".join(x.capitalize() for x in components[1:])
+
+
+def kebab_case(text):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1-\2', camel_case(text))
+    return re.sub('([a-z0-9])([A-Z])', r'\1-\2', s1).lower()
+
+
 def create_directory(path):
     print ("Creating directory \'" + path + "\'...")
     if not os.path.exists(path):
@@ -200,14 +210,120 @@ def create_packagejson():
         output_file.close()
 
 
-def camel_case(text):
-    components = text.split(' ')
-    return components[0].lower() + "".join(x.capitalize() for x in components[1:])
+def create_indexhtml():
+    print ("Creating index.html...")
+    filename = os.path.join(os.getcwd(), app_path, "index.html")
+    with open(filename, "w") as output_file:
+        output_file.write("""<!doctype html>
+<html lang="en" data-ng-app=\""""+camel_case(project_name)+"""App\">
+<head>
+    <meta charset="utf-8">
+    <base href="/">
+    <title>""" + project_name + """</title>
+    <!--<link rel="shortcut icon" type="image/png" href="Favicon.png"/>-->
 
+    <meta property="og:title" content=\"""" + project_name + """\"/>
+    <meta property="og:description" content=\"""" + project_description + """\"/>
+    <meta property="og:image" content="PREVIEW_IMAGE_URL"/>
 
-def kebab_case(text):
-    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1-\2', camel_case(text))
-    return re.sub('([a-z0-9])([A-Z])', r'\1-\2', s1).lower()
+    <!--JQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+    <!--Bootstrap-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- Material Design fonts -->
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Bootstrap Material Design -->
+    <link href="CSS/bootstrap-material-design.min.css" rel="stylesheet">
+    <link href="CSS/ripples.min.css" rel="stylesheet">
+    <script src="JS/material.min.js"></script>
+    <script src="JS/ripples.min.js"></script>
+
+    <!-- Dropdown.js -->
+    <link href="//cdn.rawgit.com/FezVrasta/dropdown.js/master/jquery.dropdown.css" rel="stylesheet">
+
+    <!--Custom css-->
+    <link rel="stylesheet" href="CSS/style.css">
+
+    <!--AngularJS-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-route.min.js"></script>
+""")
+        if firebase_boilerplate:
+            output_file.write("""
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "YOUR_APIKEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+        };
+        firebase.initializeApp(config);
+    </script>
+
+    <!-- AngularFire -->
+    <script src="https://cdn.firebase.com/libs/angularfire/2.0.0/angularfire.min.js"></script>
+""")
+
+        output_file.write("""
+
+    <!--Modules-->
+
+    <!--main 'app' module-->
+    <script src="app.module.js"></script>
+    <script src="app.config.js"></script>
+""")
+
+        if add_navbar:
+            output_file.write("""
+    <!--'nav-bar' module-->
+    <script src="nav-bar/nav-bar.module.js"></script>
+    <script src="nav-bar/nav-bar.component.js"></script>
+""")
+        if add_about:
+            output_file.write("""
+    <!--'about' module-->
+    <script src="about/about.module.js"></script>
+    <script src="about/about.component.js"></script>
+""")
+
+        for module in modules:
+            kmodule = kebab_case(module)
+            output_file.write("""
+    <!--'""" + kmodule + """' module-->
+    <script src=\"""" + kmodule + "/" + kmodule + """.module.js"></script>
+    <script src=\"""" + kmodule + "/" + kmodule + """.component.js"></script>
+""")
+        output_file.write("""
+</head>
+<body>
+
+<a href="/""" + modules[0] + """\">
+    <div class="jumbotron heading">
+        <h1 class="heading">""" + project_name + """</h1>
+    </div>
+</a>
+""")
+        if add_navbar:
+            output_file.write("\n<nav-bar></nav-bar>\n")
+        output_file.write("""
+<div data-ng-view></div>
+
+<br>
+<br>
+
+</body>
+</html>
+
+""")
+        output_file.close()
 
 
 print ("""This generator will create the base of your
@@ -232,7 +348,7 @@ if has_github_url:
     print("\nEnter github repository url in the format: \n")
     github_url = raw_input("https://github.com/user-name/repository-name\n")
 
-choice = raw_input("Add Firebase Boilerplate? [y/N]: ")
+choice = raw_input("Add Firebase presets? [y/N]: ")
 choice = choice.lower()
 firebase_boilerplate = (choice == "y") or (choice == "yes")
 
@@ -252,14 +368,13 @@ while add_modules:
     choice = choice.lower()
     add_modules = (choice == "y") or (choice == "yes")
 
-choice = raw_input("Add 'about' module? (Current number of modules: " + str(len(modules)) + ") [y/N]: ")
+choice = raw_input("\nAdd 'about' module? (Current number of modules: " + str(len(modules)) + ") [Y/n]: ")
 choice = choice.lower()
-add_about = (choice == "y") or (choice == "yes")
+add_about = not ((choice == "n") or (choice == "no"))
 
-choice = raw_input("Add 'nav-bar' module? (Current number of modules: " + str(len(modules)) + ") [y/N]: ")
+choice = raw_input("\nAdd 'nav-bar' module? (Current number of modules: " + str(len(modules)) + ") [Y/n]: ")
 choice = choice.lower()
-add_navbar = (choice == "y") or (choice == "yes")
-
+add_navbar = not ((choice == "n") or (choice == "no"))
 
 print modules
 
@@ -277,5 +392,7 @@ create_serverjs()
 
 create_directory(app_path)
 create_directory(assets_path)
+
+create_indexhtml()
 
 print("\nFinished\n\nDon't forget to run npm install from within the project directory")
