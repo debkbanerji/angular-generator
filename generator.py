@@ -305,7 +305,7 @@ def create_indexhtml():
 </head>
 <body>
 
-<a href="/""" + modules[0] + """\">
+<a href="/""" + kebab_case(home_module) + """\">
     <div class="jumbotron heading">
         <h1 class="heading">""" + project_name + """</h1>
     </div>
@@ -330,10 +330,10 @@ print ("""This generator will create the base of your
 Node.js + Express + Angular 1 project\n""")
 
 print ("""Note: when entering a module name or the project name,
-use lowercase words separated by spaces.
+use words separated by spaces.
 Case conversion will take place automatically.""")
 
-creator_name = raw_input("\nEnter your name:\n")
+creator_name = raw_input("\nEnter project creator name:\n")
 
 project_name = raw_input("\nEnter project name:\n")
 
@@ -354,9 +354,15 @@ firebase_boilerplate = (choice == "y") or (choice == "yes")
 
 modules = []
 i = 0
-add_modules = True
 
-print("\nSpecify your module names")
+home_module = raw_input("\nEnter name of home module (Default: 'home'):\n")
+if home_module == "":
+    home_module = "home"
+
+
+choice = raw_input("Add more modules? (Current number of modules: " + str(1) + ") [y/N]: ")
+choice = choice.lower()
+add_modules = (choice == "y") or (choice == "yes")
 
 while add_modules:
     module_name = ""
@@ -364,15 +370,15 @@ while add_modules:
         module_name = raw_input("\nEnter module name:\n")
     if not modules.__contains__(module_name):
         modules.append(module_name)
-    choice = raw_input("Add more modules? (Current number of modules: " + str(len(modules)) + ") [y/N]: ")
+    choice = raw_input("Add more modules? (Current number of modules: " + str(len(modules) + 1) + ") [y/N]: ")
     choice = choice.lower()
     add_modules = (choice == "y") or (choice == "yes")
 
-choice = raw_input("\nAdd 'about' module? (Current number of modules: " + str(len(modules)) + ") [Y/n]: ")
+choice = raw_input("\nAdd 'about' module? (Current number of modules: " + str(len(modules) + 1) + ") [Y/n]: ")
 choice = choice.lower()
 add_about = not ((choice == "n") or (choice == "no"))
 
-choice = raw_input("\nAdd 'nav-bar' module? (Current number of modules: " + str(len(modules)) + ") [Y/n]: ")
+choice = raw_input("\nAdd 'nav-bar' module? [Y/n]: ")
 choice = choice.lower()
 add_navbar = not ((choice == "n") or (choice == "no"))
 
