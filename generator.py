@@ -215,7 +215,7 @@ def create_indexhtml():
     filename = os.path.join(os.getcwd(), app_path, "index.html")
     with open(filename, "w") as output_file:
         output_file.write("""<!doctype html>
-<html lang="en" data-ng-app=\""""+camel_case(project_name)+"""App\">
+<html lang="en" data-ng-app=\"""" + camel_case(project_name) + """App\">
 <head>
     <meta charset="utf-8">
     <base href="/">
@@ -326,6 +326,67 @@ def create_indexhtml():
         output_file.close()
 
 
+def create_appmodulejs():
+    print ("Creating .app.module.js...")
+    filename = os.path.join(os.getcwd(), app_path, "app.module.js")
+    with open(filename, "w") as output_file:
+        output_file.write("angular.module('")
+        output_file.write(camel_case(project_name) + "App', ['ngRoute'")
+        if firebase_boilerplate:
+            output_file.write(", firebase'")
+        if add_navbar:
+            output_file.write(", 'navBar'")
+        output_file.write(", '" + camel_case(home_module) + "'")
+        if add_about:
+            output_file.write(", 'about'")
+        for module in modules:
+            output_file.write(", '" + camel_case(module) + "'")
+        output_file.write("]);")
+    output_file.close()
+
+
+def create_appconfigjs():
+    print ("Creating .app.config.js...")
+    filename = os.path.join(os.getcwd(), app_path, "app.config.js")
+    with open(filename, "w") as output_file:
+        output_file.write("angular.module('")
+        output_file.write(camel_case(project_name))
+        output_file.write("""App').config(['$locationProvider', '$routeProvider',
+    function config($locationProvider, $routeProvider) {
+        $locationProvider.hashPrefix('!');
+
+        $routeProvider""")
+        if add_about:
+            output_file.write(""".when('/about', {
+            template: '<about></about>'
+        })""")
+
+        kModule = kebab_case(home_module)
+        output_file.write(""".when('/""" + kModule + """', {
+            template: '<""" + kModule + """></""" + kModule + """>'
+        })""")
+
+        for module in modules:
+            kModule = kebab_case(module)
+            output_file.write(""".when('/""" + kModule + """', {
+            template: '<""" + kModule + """></""" + kModule + """>'
+        })""")
+
+        output_file.write(".otherwise('/" + kebab_case(home_module) + "');\n")
+        output_file.write("""
+
+        // use the HTML5 History API
+        $locationProvider.html5Mode(true);
+    }
+
+]);""")
+
+
+    output_file.close()
+
+
+# Main logic
+
 print ("""This generator will create the base of your
 Node.js + Express + Angular 1 project\n""")
 
@@ -358,7 +419,6 @@ i = 0
 home_module = raw_input("\nEnter name of home module (Default: 'home'):\n")
 if home_module == "":
     home_module = "home"
-
 
 choice = raw_input("Add more modules? (Current number of modules: " + str(1) + ") [y/N]: ")
 choice = choice.lower()
@@ -400,5 +460,7 @@ create_directory(app_path)
 create_directory(assets_path)
 
 create_indexhtml()
+create_appmodulejs()
+create_appconfigjs()
 
 print("\nFinished\n\nDon't forget to run npm install from within the project directory")
