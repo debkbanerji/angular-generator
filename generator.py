@@ -14,10 +14,10 @@ def kebab_case(text):
     return re.sub('([a-z0-9])([A-Z])', r'\1-\2', s1).lower()
 
 
-def create_directory(path):
-    print ("Creating directory \'" + path + "\'...")
-    if not os.path.exists(path):
-        os.makedirs(path)
+def create_directory(create_path):
+    print ("Creating directory \'" + create_path + "\'...")
+    if not os.path.exists(create_path):
+        os.makedirs(create_path)
 
 
 def create_gitignore():
@@ -361,15 +361,15 @@ def create_appconfigjs():
             template: '<about></about>'
         })""")
 
-        kModule = kebab_case(home_module)
-        output_file.write(""".when('/""" + kModule + """', {
-            template: '<""" + kModule + """></""" + kModule + """>'
+        k_module = kebab_case(home_module)
+        output_file.write(""".when('/""" + k_module + """', {
+            template: '<""" + k_module + """></""" + k_module + """>'
         })""")
 
         for module in modules:
-            kModule = kebab_case(module)
-            output_file.write(""".when('/""" + kModule + """', {
-            template: '<""" + kModule + """></""" + kModule + """>'
+            k_module = kebab_case(module)
+            output_file.write(""".when('/""" + k_module + """', {
+            template: '<""" + k_module + """></""" + k_module + """>'
         })""")
 
         output_file.write(".otherwise('/" + kebab_case(home_module) + "');\n")
@@ -381,6 +381,78 @@ def create_appconfigjs():
 
 ]);""")
 
+    output_file.close()
+
+
+def create_css():
+    create_directory(os.path.join(os.getcwd(), app_path, "CSS"))
+    print ("Creating style.css...")
+    filename = os.path.join(os.getcwd(), app_path, "CSS", "style.css")
+    with open(filename, "w") as output_file:
+        output_file.write("""a, u {
+    text-decoration: none !important;
+}
+
+.heading {
+    text-align: center;
+    font-size: xx-large;
+    margin-bottom: 0px;
+    text-decoration: none !important;
+    color: #333333!important;
+
+}
+
+
+
+.fade-on-hover {
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-property: color, background-color;
+    transition-property: color, background-color;
+}
+
+.fade-on-hover:hover, .fade-on-hover:focus, .fade-on-hover:active {
+    background-color: #5262bc;
+    color: white;
+}
+
+.fade-on-hover-main {
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-property: color, background-color;
+    transition-property: color, background-color;
+}
+
+.fade-on-hover-main:hover, .fade-on-hover-main:focus, .fade-on-hover-main:active {
+    background-color: #e4e4e4;
+    color: white;
+    text-decoration-color: white;
+    cursor: pointer;
+    cursor: hand;
+}
+
+#versus {
+    font-size: 9vw;
+    text-align: center;
+}""")
 
     output_file.close()
 
@@ -406,7 +478,7 @@ choice = choice.lower()
 has_github_url = (choice == "y") or (choice == "yes")
 
 if has_github_url:
-    print("\nEnter github repository url in the format: \n")
+    print("\nEnter github repository url in the format:")
     github_url = raw_input("https://github.com/user-name/repository-name\n")
 
 choice = raw_input("Add Firebase presets? [y/N]: ")
@@ -458,6 +530,7 @@ create_serverjs()
 
 create_directory(app_path)
 create_directory(assets_path)
+create_css()
 
 create_indexhtml()
 create_appmodulejs()
