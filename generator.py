@@ -457,6 +457,36 @@ def create_css():
     output_file.close()
 
 
+def create_module(module):
+    print ("Creating module '" + module + "'...")
+    k_module = kebab_case(module)
+    c_module = camel_case(module)
+    module_dir = os.path.join(os.getcwd(), app_path, k_module)
+    create_directory(module_dir)
+
+    filename = os.path.join(module_dir, k_module + ".module.js")
+    with open(filename, "w") as output_file:
+        output_file.write("angular.module('" + c_module + "', []);")
+    output_file.close()
+
+    filename = os.path.join(module_dir, k_module + ".component.js")
+    with open(filename, "w") as output_file:
+        output_file.write("angular.module('" + c_module + "').component('" + c_module + "', {\n")
+        output_file.write("    templateUrl: '" + k_module + "/" + k_module + ".template.html',\n\n")
+        output_file.write("    controller: [function " + c_module + "Controller() {\n")
+        output_file.write("""        var self = this;
+    }]
+});""")
+    output_file.close()
+
+    filename = os.path.join(module_dir, k_module + ".template.html")
+    with open(filename, "w") as output_file:
+        output_file.write("<div class=\"container-fluid\">\n")
+        output_file.write("    <h2>TODO: Create '" + module + "' module</h2>\n")
+        output_file.write("</div>")
+    output_file.close()
+
+
 # Main logic
 
 print ("""This generator will create the base of your
@@ -517,8 +547,8 @@ add_navbar = not ((choice == "n") or (choice == "no"))
 print modules
 
 path = kebab_case(project_name)
-app_path = os.path.join(path, "app")
-assets_path = os.path.join(path, "assets")
+app_path = os.path.join(os.getcwd(), path, "app")
+assets_path = os.path.join(os.getcwd(), path, "assets")
 
 print ("\n")
 create_directory(path)
@@ -535,5 +565,8 @@ create_css()
 create_indexhtml()
 create_appmodulejs()
 create_appconfigjs()
+create_module(home_module)
+for module in modules:
+    create_module(module)
 
 print("\nFinished\n\nDon't forget to run npm install from within the project directory")
