@@ -294,6 +294,13 @@ def create_indexhtml():
     <script src="about/about.component.js"></script>
 """)
 
+            kmodule = kebab_case(home_module)
+            output_file.write("""
+    <!--'""" + kmodule + """' module-->
+    <script src=\"""" + kmodule + "/" + kmodule + """.module.js"></script>
+    <script src=\"""" + kmodule + "/" + kmodule + """.component.js"></script>
+""")
+
         for module in modules:
             kmodule = kebab_case(module)
             output_file.write("""
@@ -333,7 +340,7 @@ def create_appmodulejs():
         output_file.write("angular.module('")
         output_file.write(camel_case(project_name) + "App', ['ngRoute'")
         if firebase_boilerplate:
-            output_file.write(", firebase'")
+            output_file.write(", 'firebase'")
         if add_navbar:
             output_file.write(", 'navBar'")
         output_file.write(", '" + camel_case(home_module) + "'")
@@ -487,6 +494,126 @@ def create_module(module):
     output_file.close()
 
 
+def create_about_module():
+    print ("Creating module 'about'...")
+    module_dir = os.path.join(os.getcwd(), app_path, "about")
+    create_directory(module_dir)
+
+    filename = os.path.join(module_dir, "about.module.js")
+    with open(filename, "w") as output_file:
+        output_file.write("angular.module('about', []);")
+    output_file.close()
+
+    filename = os.path.join(module_dir, "about.component.js")
+    with open(filename, "w") as output_file:
+        output_file.write("angular.module('about').component('about', {\n")
+        output_file.write("    templateUrl: 'about/about.template.html',\n\n")
+        output_file.write("    controller: [function aboutController() {\n")
+        output_file.write("""        var self = this;
+    }]
+});""")
+    output_file.close()
+
+    filename = os.path.join(module_dir, "about.template.html")
+    with open(filename, "w") as output_file:
+        output_file.write("<div class=\"container-fluid\">\n")
+        output_file.write("    <h2>About " + project_name + "</h2>\n")
+        output_file.write("    <p>" + project_description + "</p>\n")
+        output_file.write("</div>")
+    output_file.close()
+
+
+def create_navbar_module():
+    print ("Creating module 'nav bar'...")
+    module_dir = os.path.join(os.getcwd(), app_path, "nav-bar")
+    create_directory(module_dir)
+
+    filename = os.path.join(module_dir, "nav-bar.module.js")
+    with open(filename, "w") as output_file:
+        output_file.write("angular.module('navBar', []);")
+    output_file.close()
+
+    filename = os.path.join(module_dir, "nav-bar.component.js")
+    with open(filename, "w") as output_file:
+        output_file.write("""angular.module('navBar').component('navBar', {
+    templateUrl: 'nav-bar/nav-bar.template.html',
+
+    controller: ['$scope', '$location', function navBarController($scope, $location) {
+        var self = this;
+        updateNavBar($location, self);
+
+        $scope.$on('$routeChangeSuccess', function () {
+            updateNavBar($location, self);
+        });
+    }
+
+    ]
+});
+
+function updateNavBar(location, self) {
+    self.path = location.path();
+    self.url = location.url();""")
+
+        for module in modules:
+            k_module = kebab_case(module)
+            c_module = camel_case(module)
+            output_file.write("\n    self." + c_module + " = /" + k_module + "$/.test(self.path);")
+        output_file.write("\n}")
+    output_file.close()
+
+    filename = os.path.join(module_dir, "nav-bar.template.html")
+    with open(filename, "w") as output_file:
+        output_file.write("""<nav class="navbar navbar-inverse">
+    <div class="container-fluid" style="width: inherit">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" style="width: inherit">
+            <ul class="nav navbar-nav">
+""")
+
+        k_module = kebab_case(home_module)
+        c_module = camel_case(home_module)
+        output_file.write("""                <li data-ng-show="($ctrl.""" +c_module +""")" class="active current-tab"><a href="/"""+k_module+"""\">""" + home_module + """</a></li>
+                <li data-ng-show="!($ctrl.""" +c_module +""")" class="fade-on-hover"><a href="/"""+k_module+"""\">""" + home_module + """</a></li>
+
+""")
+
+        for index in range(len(modules)):
+            k_module = kebab_case(modules[index])
+            c_module = camel_case(modules[index])
+            if module_in_nav_bar[index]:
+                output_file.write("""                <li data-ng-show="($ctrl.""" +c_module +""")" class="active current-tab"><a href="/"""+k_module+"""\">""" + modules[index] + """</a></li>
+                <li data-ng-show="!($ctrl.""" +c_module +""")" class="fade-on-hover"><a href="/"""+k_module+"""\">""" + modules[index] + """</a></li>
+
+""")
+
+            else:
+                output_file.write("""                <!--<li data-ng-show="($ctrl.""" +c_module +""")" class="active current-tab"><a href="/"""+k_module+"""\">""" + modules[index] + """</a></li>-->
+                <!--<li data-ng-show="!($ctrl.""" +c_module +""")" class="fade-on-hover"><a href="/"""+k_module+"""\">""" + modules[index] + """</a></li>-->
+
+""")
+        if add_about:
+            output_file.write("""                <li data-ng-show="($ctrl.about)" class="active current-tab"><a href="/about\">About</a></li>
+                <li data-ng-show="!($ctrl.about)" class="fade-on-hover"><a href="/about\">About</a></li>
+                
+""")
+
+        output_file.write("""
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>""")
+    output_file.close()
+
+
 # Main logic
 
 print ("""This generator will create the base of your
@@ -518,9 +645,9 @@ firebase_boilerplate = (choice == "y") or (choice == "yes")
 modules = []
 i = 0
 
-home_module = raw_input("\nEnter name of home module (Default: 'home'):\n")
+home_module = raw_input("\nEnter name of home module (Default: 'Home'):\n")
 if home_module == "":
-    home_module = "home"
+    home_module = "Home"
 
 choice = raw_input("Add more modules? (Current number of modules: " + str(1) + ") [y/N]: ")
 choice = choice.lower()
@@ -536,13 +663,22 @@ while add_modules:
     choice = choice.lower()
     add_modules = (choice == "y") or (choice == "yes")
 
-choice = raw_input("\nAdd 'about' module? (Current number of modules: " + str(len(modules) + 1) + ") [Y/n]: ")
+choice = raw_input("\nAdd 'about' module? [Y/n]: ")
 choice = choice.lower()
 add_about = not ((choice == "n") or (choice == "no"))
 
 choice = raw_input("\nAdd 'nav-bar' module? [Y/n]: ")
 choice = choice.lower()
 add_navbar = not ((choice == "n") or (choice == "no"))
+
+if add_navbar:
+    module_in_nav_bar = []
+    for index in range(len(modules)):
+        choice = raw_input("Add '" + modules[index] + "' to nav bar? [Y/n]: ")
+        choice = choice.lower()
+        module_in_nav_bar.append(not ((choice == "n") or (choice == "no")))
+    print module_in_nav_bar
+
 
 print modules
 
@@ -566,7 +702,12 @@ create_indexhtml()
 create_appmodulejs()
 create_appconfigjs()
 create_module(home_module)
+
 for module in modules:
     create_module(module)
+if add_about:
+    create_about_module()
+if add_navbar:
+    create_navbar_module()
 
 print("\nFinished\n\nDon't forget to run npm install from within the project directory")
