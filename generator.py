@@ -443,11 +443,6 @@ def create_stylecss():
     text-decoration-color: white;
     cursor: pointer;
     cursor: hand;
-}
-
-#versus {
-    font-size: 9vw;
-    text-align: center;
 }""")
 
     output_file.close()
@@ -593,10 +588,18 @@ function updateNavBar(location, self) {
     self.path = location.path();
     self.url = location.url();""")
 
+        k_module = kebab_case(home_module)
+        c_module = camel_case(home_module)
+        output_file.write("\n    self." + c_module + " = /" + k_module + "$/.test(self.path);")
+
         for module in modules:
             k_module = kebab_case(module)
             c_module = camel_case(module)
             output_file.write("\n    self." + c_module + " = /" + k_module + "$/.test(self.path);")
+
+        if add_about:
+            output_file.write("\n    self.about = /about$/.test(self.path);")
+
         output_file.write("\n}")
     output_file.close()
 
@@ -620,36 +623,22 @@ function updateNavBar(location, self) {
 
         k_module = kebab_case(home_module)
         c_module = camel_case(home_module)
-        output_file.write(
-            """                <li data-ng-show="($ctrl.""" + c_module + """)" class="active current-tab"><a href="/""" + k_module + """\">""" + home_module + """</a></li>
-                <li data-ng-show="!($ctrl.""" + c_module + """)" class="nav-bar-fade-on-hover"><a href="/""" + k_module + """\">""" + home_module + """</a></li>
-
+        output_file.write("""\n                <li data-ng-class="{'active': $ctrl.""" + c_module + """, 'current-tab': $ctrl.""" + c_module + """, 'nav-bar-fade-on-hover': !$ctrl.""" + c_module + """}"><a href=\"/""" + k_module + """\">""" + home_module + """</a></li>
 """)
 
         for index in range(len(modules)):
             k_module = kebab_case(modules[index])
             c_module = camel_case(modules[index])
             if module_in_nav_bar[index]:
-                output_file.write(
-                    """                <li data-ng-show="($ctrl.""" + c_module + """)" class="active current-tab"><a href="/""" + k_module + """\">""" +
-                    modules[index] + """</a></li>
-                <li data-ng-show="!($ctrl.""" + c_module + """)" class="nav-bar-fade-on-hover"><a href="/""" + k_module + """\">""" +
-                    modules[index] + """</a></li>
-
+                output_file.write("""                <li data-ng-class="{'active': $ctrl.""" + c_module + """, 'current-tab': $ctrl.""" + c_module + """, 'nav-bar-fade-on-hover': !$ctrl.""" + c_module + """}"><a href=\"/""" + k_module + """\">""" + modules[index] + """</a></li>
 """)
 
             else:
-                output_file.write(
-                    """                <!--<li data-ng-show="($ctrl.""" + c_module + """)" class="active current-tab"><a href="/""" + k_module + """\">""" +
-                    modules[index] + """</a></li>-->
-                <!--<li data-ng-show="!($ctrl.""" + c_module + """)" class="nav-bar-fade-on-hover"><a href="/""" + k_module + """\">""" +
-                    modules[index] + """</a></li>-->
-
+                output_file.write("""                <!--<li data-ng-class="{'active': $ctrl.""" + c_module + """, 'current-tab': $ctrl.""" + c_module + """, 'nav-bar-fade-on-hover': !$ctrl.""" + c_module + """}"><a href=\"/""" + k_module + """\">""" + modules[index] + """</a></li>-->
 """)
+
         if add_about:
-            output_file.write("""                <li data-ng-show="($ctrl.about)" class="active current-tab"><a href="/about\">About</a></li>
-                <li data-ng-show="!($ctrl.about)" class="nav-bar-fade-on-hover"><a href="/about\">About</a></li>
-                
+            output_file.write("""                <li data-ng-class="{'active': $ctrl.about, 'current-tab': $ctrl.about, 'nav-bar-fade-on-hover': !$ctrl.about}"><a href="/about">About</a></li>
 """)
 
         output_file.write("""
