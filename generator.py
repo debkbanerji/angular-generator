@@ -309,7 +309,7 @@ def create_indexhtml():
 <body>
 
 <a href="/""" + kebab_case(home_module) + """\">
-    <div class="jumbotron heading">
+    <div class="jumbotron heading" style="width: 100vw">
         <h1 class="heading">""" + project_name + """</h1>
     </div>
 </a>
