@@ -391,8 +391,7 @@ def create_appconfigjs():
     output_file.close()
 
 
-def create_css():
-    create_directory(os.path.join(os.getcwd(), app_path, "CSS"))
+def create_stylecss():
     print ("Creating style.css...")
     filename = os.path.join(os.getcwd(), app_path, "CSS", "style.css")
     with open(filename, "w") as output_file:
@@ -411,7 +410,7 @@ def create_css():
 
 
 
-.fade-on-hover {
+.nav-bar-fade-on-hover {
     display: inline-block;
     vertical-align: middle;
     -webkit-transform: translateZ(0);
@@ -427,12 +426,12 @@ def create_css():
     transition-property: color, background-color;
 }
 
-.fade-on-hover:hover, .fade-on-hover:focus, .fade-on-hover:active {
-    background-color: #5262bc;
+.nav-bar-fade-on-hover:hover, .nav-bar-fade-on-hover:focus, .nav-bar-fade-on-hover:active {
+    background-color: #""" + navbar_highlight[navbar_num] + """;
     color: white;
 }
 
-.fade-on-hover-main {
+.nav-bar-fade-on-hover-main {
     display: inline-block;
     vertical-align: middle;
     -webkit-transform: translateZ(0);
@@ -448,7 +447,7 @@ def create_css():
     transition-property: color, background-color;
 }
 
-.fade-on-hover-main:hover, .fade-on-hover-main:focus, .fade-on-hover-main:active {
+.nav-bar-fade-on-hover-main:hover, .nav-bar-fade-on-hover-main:focus, .nav-bar-fade-on-hover-main:active {
     background-color: #e4e4e4;
     color: white;
     text-decoration-color: white;
@@ -519,6 +518,7 @@ def create_about_module():
         output_file.write("<div class=\"container-fluid\">\n")
         output_file.write("    <h2>About " + project_name + "</h2>\n")
         output_file.write("    <p>" + project_description + "</p>\n")
+        output_file.write("    <p>Created by " + creator_name + "</p>\n")
         output_file.write("</div>")
     output_file.close()
 
@@ -563,7 +563,7 @@ function updateNavBar(location, self) {
 
     filename = os.path.join(module_dir, "nav-bar.template.html")
     with open(filename, "w") as output_file:
-        output_file.write("""<nav class="navbar navbar-inverse">
+        output_file.write("""<nav class="navbar navbar-""" + navbar_themes[navbar_num] + """\">
     <div class="container-fluid" style="width: inherit">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
@@ -581,8 +581,9 @@ function updateNavBar(location, self) {
 
         k_module = kebab_case(home_module)
         c_module = camel_case(home_module)
-        output_file.write("""                <li data-ng-show="($ctrl.""" +c_module +""")" class="active current-tab"><a href="/"""+k_module+"""\">""" + home_module + """</a></li>
-                <li data-ng-show="!($ctrl.""" +c_module +""")" class="fade-on-hover"><a href="/"""+k_module+"""\">""" + home_module + """</a></li>
+        output_file.write(
+            """                <li data-ng-show="($ctrl.""" + c_module + """)" class="active current-tab"><a href="/""" + k_module + """\">""" + home_module + """</a></li>
+                <li data-ng-show="!($ctrl.""" + c_module + """)" class="nav-bar-fade-on-hover"><a href="/""" + k_module + """\">""" + home_module + """</a></li>
 
 """)
 
@@ -590,19 +591,25 @@ function updateNavBar(location, self) {
             k_module = kebab_case(modules[index])
             c_module = camel_case(modules[index])
             if module_in_nav_bar[index]:
-                output_file.write("""                <li data-ng-show="($ctrl.""" +c_module +""")" class="active current-tab"><a href="/"""+k_module+"""\">""" + modules[index] + """</a></li>
-                <li data-ng-show="!($ctrl.""" +c_module +""")" class="fade-on-hover"><a href="/"""+k_module+"""\">""" + modules[index] + """</a></li>
+                output_file.write(
+                    """                <li data-ng-show="($ctrl.""" + c_module + """)" class="active current-tab"><a href="/""" + k_module + """\">""" +
+                    modules[index] + """</a></li>
+                <li data-ng-show="!($ctrl.""" + c_module + """)" class="nav-bar-fade-on-hover"><a href="/""" + k_module + """\">""" +
+                    modules[index] + """</a></li>
 
 """)
 
             else:
-                output_file.write("""                <!--<li data-ng-show="($ctrl.""" +c_module +""")" class="active current-tab"><a href="/"""+k_module+"""\">""" + modules[index] + """</a></li>-->
-                <!--<li data-ng-show="!($ctrl.""" +c_module +""")" class="fade-on-hover"><a href="/"""+k_module+"""\">""" + modules[index] + """</a></li>-->
+                output_file.write(
+                    """                <!--<li data-ng-show="($ctrl.""" + c_module + """)" class="active current-tab"><a href="/""" + k_module + """\">""" +
+                    modules[index] + """</a></li>-->
+                <!--<li data-ng-show="!($ctrl.""" + c_module + """)" class="nav-bar-fade-on-hover"><a href="/""" + k_module + """\">""" +
+                    modules[index] + """</a></li>-->
 
 """)
         if add_about:
             output_file.write("""                <li data-ng-show="($ctrl.about)" class="active current-tab"><a href="/about\">About</a></li>
-                <li data-ng-show="!($ctrl.about)" class="fade-on-hover"><a href="/about\">About</a></li>
+                <li data-ng-show="!($ctrl.about)" class="nav-bar-fade-on-hover"><a href="/about\">About</a></li>
                 
 """)
 
@@ -671,20 +678,37 @@ choice = raw_input("\nAdd 'nav-bar' module? [Y/n]: ")
 choice = choice.lower()
 add_navbar = not ((choice == "n") or (choice == "no"))
 
+navbar_num = 0
+navbar_themes = ["default", "info", "success", "inverse", "warning", "danger"]
+navbar_highlight = ["19a094", "1cb1f5", "5eb761", "5262bc", "ff6738", "f5554a"]
+
 if add_navbar:
     module_in_nav_bar = []
     for index in range(len(modules)):
         choice = raw_input("Add '" + modules[index] + "' to nav bar? [Y/n]: ")
         choice = choice.lower()
         module_in_nav_bar.append(not ((choice == "n") or (choice == "no")))
-    print module_in_nav_bar
 
+    try:
+        navbar_num = int(input("""\nEnter number to choose nav bar color:
+0 - teal
+1 - light blue
+2 - light green
+3 - dark purple
+4 - orange
+5 - red
+"""))
+        if navbar_num < 0 or navbar_num > 5:
+            navbar_num = 0
+    except:
+        navbar_num = 0
 
-print modules
+    print str(navbar_num)
 
 path = kebab_case(project_name)
 app_path = os.path.join(os.getcwd(), path, "app")
 assets_path = os.path.join(os.getcwd(), path, "assets")
+css_path = os.path.join(app_path, "CSS")
 
 print ("\n")
 create_directory(path)
@@ -694,15 +718,17 @@ create_packagejson()
 create_readmemd()
 create_serverjs()
 
-create_directory(app_path)
 create_directory(assets_path)
-create_css()
+create_directory(app_path)
+create_directory(css_path)
+
+create_stylecss()
 
 create_indexhtml()
 create_appmodulejs()
 create_appconfigjs()
-create_module(home_module)
 
+create_module(home_module)
 for module in modules:
     create_module(module)
 if add_about:
