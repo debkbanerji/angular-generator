@@ -213,7 +213,7 @@ def create_indexhtml():
     <meta charset="utf-8">
     <base href="/">
     <title>""" + project_name + """</title>
-    <!--<link rel="shortcut icon" type="image/png" href="Favicon.png"/>-->
+    <!--<link rel="shortcut icon" type="image/png" href="assets/Favicon.png"/>-->
 
     <meta property="og:title" content=\"""" + project_name + """\"/>
     <meta property="og:description" content=\"""" + project_description + """\"/>
@@ -796,8 +796,8 @@ if add_navbar:
         # print str(navbar_num)
 
 app_path = os.path.join(os.getcwd(), path, "app")
-assets_path = os.path.join(os.getcwd(), path, "assets")
 
+assets_path = os.path.join(app_path, "assets")
 css_path = os.path.join(app_path, "CSS")
 js_path = os.path.join(app_path, "JS")
 
