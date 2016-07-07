@@ -720,16 +720,22 @@ project_name = raw_input("\nEnter project name:\n")
 
 project_description = raw_input("\nEnter project description:\n")
 
+path = kebab_case(project_name)
+path = raw_input(
+    "\nEnter name of project directory (Default: " + path + "):\nNote: if the directory does not exist, it will be created\n")
+if path == "":
+    path = kebab_case(project_name)
+
 # Asking about GitHub repo
-choice = raw_input("Specify github repository? [y/N]:")
+choice = raw_input("Specify Github repository? [y/N]:")
 choice = choice.lower()
 has_github_url = (choice == "y") or (choice == "yes")
 
 if has_github_url:
-    print("\nEnter github repository url in the format:")
+    print("\nEnter Github repository url in the format:")
     github_url = raw_input("https://github.com/user-name/repository-name\n")
 
-choice = raw_input("Add Firebase presets? [y/N]: ")
+choice = raw_input("Add Firebase boilerplate? [y/N]: ")
 choice = choice.lower()
 firebase_boilerplate = (choice == "y") or (choice == "yes")
 
@@ -789,9 +795,9 @@ if add_navbar:
 
         # print str(navbar_num)
 
-path = kebab_case(project_name)
 app_path = os.path.join(os.getcwd(), path, "app")
 assets_path = os.path.join(os.getcwd(), path, "assets")
+
 css_path = os.path.join(app_path, "CSS")
 js_path = os.path.join(app_path, "JS")
 
