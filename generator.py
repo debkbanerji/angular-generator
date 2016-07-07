@@ -241,10 +241,13 @@ def create_indexhtml():
 
     <!--Custom css-->
     <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="app.animations.css">
+
 
     <!--AngularJS-->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-animate.min.js"></script>
 """)
         if firebase_boilerplate:
             output_file.write("""
@@ -314,10 +317,12 @@ def create_indexhtml():
         if add_navbar:
             output_file.write("\n<nav-bar></nav-bar>\n")
         output_file.write("""
-<div data-ng-view></div>
+<div class="view-container">
+    <div data-ng-view class="view-frame"></div>
+</div>
 
-<br>
-<br>
+<!--<br>-->
+<!--<br>-->
 
 </body>
 </html>
@@ -330,7 +335,7 @@ def create_appmodulejs():
     filename = os.path.join(os.getcwd(), app_path, "app.module.js")
     with open(filename, "w") as output_file:
         output_file.write("angular.module('")
-        output_file.write(camel_case(project_name) + "App', ['ngRoute'")
+        output_file.write(camel_case(project_name) + "App', ['ngRoute', 'ngAnimate'")
         if firebase_boilerplate:
             output_file.write(", 'firebase'")
         if add_navbar:
@@ -379,6 +384,46 @@ def create_appconfigjs():
 
 ]);""")
 
+    output_file.close()
+
+
+def create_appanimationscss():
+    filename = os.path.join(os.getcwd(), app_path, "app.animations.css")
+    with open(filename, "w") as output_file:
+        output_file.write(""".view-container {
+    position: relative;
+}
+
+.view-frame.ng-enter,
+.view-frame.ng-leave {
+    background: #EEEEEE;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.view-frame.ng-enter {
+    animation: 1s fade-in;
+    z-index: 100;
+}
+
+.view-frame.ng-leave {
+    animation: 1s fade-out;
+    z-index: 99;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Older browsers might need vendor-prefixes for keyframes and animation */""")
     output_file.close()
 
 
@@ -524,7 +569,7 @@ def create_module(module):
     filename = os.path.join(module_dir, k_module + ".template.html")
     with open(filename, "w") as output_file:
         output_file.write("<div class=\"container-fluid\">\n")
-        output_file.write("    <h2>TODO: Create '" + module + "' module</h2>\n")
+        output_file.write("    <h2>TODO: Create module '" + module + "'</h2>\n")
         output_file.write("</div>")
     output_file.close()
 
@@ -623,18 +668,23 @@ function updateNavBar(location, self) {
 
         k_module = kebab_case(home_module)
         c_module = camel_case(home_module)
-        output_file.write("""\n                <li data-ng-class="{'active': $ctrl.""" + c_module + """, 'current-tab': $ctrl.""" + c_module + """, 'nav-bar-fade-on-hover': !$ctrl.""" + c_module + """}"><a href=\"/""" + k_module + """\">""" + home_module + """</a></li>
+        output_file.write(
+            """\n                <li data-ng-class="{'active': $ctrl.""" + c_module + """, 'current-tab': $ctrl.""" + c_module + """, 'nav-bar-fade-on-hover': !$ctrl.""" + c_module + """}"><a href=\"/""" + k_module + """\">""" + home_module + """</a></li>
 """)
 
         for index in range(len(modules)):
             k_module = kebab_case(modules[index])
             c_module = camel_case(modules[index])
             if module_in_nav_bar[index]:
-                output_file.write("""                <li data-ng-class="{'active': $ctrl.""" + c_module + """, 'current-tab': $ctrl.""" + c_module + """, 'nav-bar-fade-on-hover': !$ctrl.""" + c_module + """}"><a href=\"/""" + k_module + """\">""" + modules[index] + """</a></li>
+                output_file.write(
+                    """                <li data-ng-class="{'active': $ctrl.""" + c_module + """, 'current-tab': $ctrl.""" + c_module + """, 'nav-bar-fade-on-hover': !$ctrl.""" + c_module + """}"><a href=\"/""" + k_module + """\">""" +
+                    modules[index] + """</a></li>
 """)
 
             else:
-                output_file.write("""                <!--<li data-ng-class="{'active': $ctrl.""" + c_module + """, 'current-tab': $ctrl.""" + c_module + """, 'nav-bar-fade-on-hover': !$ctrl.""" + c_module + """}"><a href=\"/""" + k_module + """\">""" + modules[index] + """</a></li>-->
+                output_file.write(
+                    """                <!--<li data-ng-class="{'active': $ctrl.""" + c_module + """, 'current-tab': $ctrl.""" + c_module + """, 'nav-bar-fade-on-hover': !$ctrl.""" + c_module + """}"><a href=\"/""" + k_module + """\">""" +
+                    modules[index] + """</a></li>-->
 """)
 
         if add_about:
@@ -760,6 +810,7 @@ create_materialjs()
 create_indexhtml()
 create_appmodulejs()
 create_appconfigjs()
+create_appanimationscss()
 
 create_module(home_module)
 for module in modules:
@@ -769,4 +820,4 @@ if add_about:
 if add_navbar:
     create_navbar_module()
 
-print("\nFinished\n\nDon't forget to run npm install from within the project directory")
+print("\nFinished.\n\nDon't forget to run npm install from within the project directory")
