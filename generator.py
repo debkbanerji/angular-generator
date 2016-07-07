@@ -568,9 +568,13 @@ def create_module(module):
 
     filename = os.path.join(module_dir, k_module + ".template.html")
     with open(filename, "w") as output_file:
-        output_file.write("<div class=\"container-fluid\">\n")
-        output_file.write("    <h2>TODO: Create module '" + module + "'</h2>\n")
-        output_file.write("</div>")
+        output_file.write("""<div class="row">
+    <div class="col-xs-12">
+        <div class="container-fluid">
+            <h2>TODO: Create module \'""" + module + """\'</h2>
+        </div>
+    </div>
+</div>""")
     output_file.close()
 
 
@@ -595,11 +599,13 @@ def create_about_module():
 
     filename = os.path.join(module_dir, "about.template.html")
     with open(filename, "w") as output_file:
-        output_file.write("<div class=\"container-fluid\">\n")
-        output_file.write("    <h2>About " + project_name + "</h2>\n")
-        output_file.write("    <p>" + project_description + "</p>\n")
-        output_file.write("    <p>Created by " + creator_name + "</p>\n")
-        output_file.write("</div>")
+        output_file.write("""<div class="row">
+    <div class="col-xs-12">
+        <div class="container-fluid">
+            <h2>TODO: Create module \'About\'</h2>
+        </div>
+    </div>
+</div>""")
     output_file.close()
 
 
