@@ -753,7 +753,7 @@ add_modules = (choice == "y") or (choice == "yes")
 while add_modules:
     module_name = ""
     while module_name == "":
-        module_name = raw_input("\nEnter module name:\n")
+        module_name = raw_input("Enter module name:\n")
     if not modules.__contains__(module_name):
         modules.append(module_name)
     choice = raw_input("Add more modules? (Current number of modules: " + str(len(modules) + 1) + ") [y/N]: ")
