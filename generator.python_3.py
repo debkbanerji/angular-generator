@@ -602,7 +602,8 @@ def create_about_module():
         output_file.write("""<div class="row">
     <div class="col-xs-12">
         <div class="container-fluid">
-            <h2>TODO: Create module \'About\'</h2>
+            <h2>About """ + project_name + """</h2>
+            <p>""" + project_description + """</p>
         </div>
     </div>
 </div>""")
