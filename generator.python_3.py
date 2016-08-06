@@ -103,6 +103,7 @@ def create_serverjs():
         output_file.write("""var express = require("express");
 var os = require('os');
 const path = require('path');
+var bodyParser = require('body-parser');
 
 var app = express();
 
@@ -142,6 +143,12 @@ Object.keys(ifaces).forEach(function (ifname) {
         ++alias;
     });
 });
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// parse application/json
+app.use(bodyParser.json());
 
 app.use("/server.js",function (req, res, next) {
     res.redirect("/")
@@ -197,6 +204,7 @@ def create_packagejson():
             output_file.write("""  \"homepage\": \"""" + github_url + """#readme\",\n""")
 
         output_file.write("""  \"dependencies\": {
+    \"body-parser\": \"^1.15.2\",
     \"express\": \"^4.14.0\"
   }
 }""")
