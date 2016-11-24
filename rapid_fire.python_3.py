@@ -172,14 +172,18 @@ def create_readmemd():
     filename = os.path.join(os.getcwd(), path, "README.md")
     with open(filename, "w") as output_file:
         output_file.write("# " + project_name + "\n" + project_description)
+        output_file.write("""
+
+        """ + str(date.today().year) + """ """ + creator_name)
         output_file.close()
 
 
 def create_packagejson():
     filename = os.path.join(os.getcwd(), path, "package.json")
     with open(filename, "w") as output_file:
-        output_file.write("""{
-  \"name\": \"""" + kebab_case(project_name) + "\",\n")
+        output_file.write("""
+        {
+        \"name\": \"""" + kebab_case(project_name) + "\",\n")
         output_file.write("""  \"version\": \"1.0.0\",
   \"description\": \"""" + project_description + "\",\n")
         output_file.write("""  \"main\": \"server.js\",
@@ -201,7 +205,7 @@ def create_packagejson():
             output_file.write("""  \"bugs\": {
     \"url\": \"""" + github_url + """/issues\"
   },\n""")
-            output_file.write("""  \"homepage\": \"""" + github_url + """#readme\",\n""")
+        output_file.write("""  \"homepage\": \"""" + github_url + """#readme\",\n""")
 
         output_file.write("""  \"dependencies\": {
     \"body-parser\": \"^1.15.2\",
@@ -283,6 +287,10 @@ def create_indexhtml():
     <!--main 'app' module-->
     <script src="app.module.js"></script>
     <script src="app.config.js"></script>
+
+    <!--'login' module-->
+    <script src="login/login.module.js"></script>
+    <script src="login/login.component.js"></script>
 """)
 
         if add_navbar:
@@ -322,8 +330,8 @@ def create_indexhtml():
     </div>
 </a>
 """)
-        if add_navbar:
-            output_file.write("\n<nav-bar></nav-bar>\n")
+        # if add_navbar:
+        # output_file.write("\n<nav-bar></nav-bar>\n")
         output_file.write("""
 <div class="view-container">
     <div data-ng-view class="view-frame"></div>
@@ -343,7 +351,7 @@ def create_appmodulejs():
     filename = os.path.join(os.getcwd(), app_path, "app.module.js")
     with open(filename, "w") as output_file:
         output_file.write("angular.module('")
-        output_file.write(camel_case(project_name) + "App', ['ngRoute', 'ngAnimate'")
+        output_file.write(camel_case(project_name) + "App', ['ngRoute', 'ngAnimate', 'login'")
         if firebase_boilerplate:
             output_file.write(", 'firebase'")
         if add_navbar:
@@ -383,7 +391,10 @@ def create_appconfigjs():
             template: '<""" + k_module + """></""" + k_module + """>'
         })""")
 
-        output_file.write(".otherwise('/" + kebab_case(home_module) + "');\n")
+        output_file.write(""".when('/""" + "login" + """', {
+            template: '<""" + "login" + """></""" + "login" + """>'
+        })""")
+        output_file.write(".otherwise('/" + kebab_case("login") + "');\n")
         output_file.write("""
 
         // use the HTML5 History API
@@ -568,14 +579,18 @@ def create_module(module):
     with open(filename, "w") as output_file:
         output_file.write("angular.module('" + c_module + "').component('" + c_module + "', {\n")
         output_file.write("    templateUrl: '" + k_module + "/" + k_module + ".template.html',\n\n")
-        output_file.write("    controller: [function " + c_module + "Controller() {\n")
+        output_file.write(
+            """    controller: ['$routeParams', '$route', '$firebaseObject', '$firebaseArray', function """ + c_module + "Controller($routeParams, $route, $firebaseObject, $firebaseArray) {\n")
         output_file.write("""        var self = this;
+        var user = firebase.auth().currentUser;
+        self.""" + c_module + """Ref = firebase.database().ref().child("users").child(user.uid).child(\"""" + k_module + """\");
     }]
 });""")
     output_file.close()
 
     filename = os.path.join(module_dir, k_module + ".template.html")
     with open(filename, "w") as output_file:
+        output_file.write("\n<nav-bar></nav-bar>\n")
         output_file.write("""<div class="row">
     <div class="col-xs-12">
         <div class="container-fluid">
@@ -607,6 +622,7 @@ def create_about_module():
 
     filename = os.path.join(module_dir, "about.template.html")
     with open(filename, "w") as output_file:
+        output_file.write("\n<nav-bar></nav-bar>\n")
         output_file.write("""<div class="row">
     <div class="col-xs-12">
         <div class="container-fluid">
@@ -632,13 +648,26 @@ def create_navbar_module():
         output_file.write("""angular.module('navBar').component('navBar', {
     templateUrl: 'nav-bar/nav-bar.template.html',
 
-    controller: ['$scope', '$location', function navBarController($scope, $location) {
+    controller: ['$window', '$scope', '$location', function navBarController($window, $scope, $location) {
         var self = this;
         updateNavBar($location, self);
 
         $scope.$on('$routeChangeSuccess', function () {
             updateNavBar($location, self);
         });
+
+        this.signOut = function () {
+            console.log("BEFORE SIGNOUT:" + firebase.auth().currentUser.displayName);
+            firebase.auth().signOut().then(function() {
+                // Sign-out successful.
+                console.log("SIGNED OUT");
+                // $location.url('/manage-classes');
+                $window.location.href = '/login';
+                $location.path('/login');
+            }, function(error) {
+                // An error happened.
+            });
+        }
     }
 
     ]
@@ -705,7 +734,9 @@ function updateNavBar(location, self) {
         if add_about:
             output_file.write("""                <li data-ng-class="{'active': $ctrl.about, 'current-tab': $ctrl.about, 'nav-bar-fade-on-hover': !$ctrl.about}"><a href="/about">About</a></li>
 """)
-
+        output_file.write("""
+                <li id="sign_out" class="nav-bar-fade-on-hover" ng-click="$ctrl.signOut()" style="cursor: pointer"><a>Sign Out</a></li>
+""")
         output_file.write("""
             </ul>
         </div><!-- /.navbar-collapse -->
@@ -714,12 +745,103 @@ function updateNavBar(location, self) {
     output_file.close()
 
 
+def create_login_module():
+    module_dir = os.path.join(os.getcwd(), app_path, "login")
+    create_directory(module_dir)
+
+    filename = os.path.join(module_dir, "login.module.js")
+    with open(filename, "w") as output_file:
+        output_file.write("angular.module('login', []);")
+    output_file.close()
+
+    filename = os.path.join(module_dir, "login.component.js")
+    with open(filename, "w") as output_file:
+        output_file.write("angular.module('login').component('login', {\n")
+        output_file.write("    templateUrl: 'login/login.template.html',\n\n")
+        output_file.write(
+            "    controller: ['$timeout', '$rootScope', '$window', '$location', function loginController($timeout, $rootScope, $window, $location) {\n")
+        output_file.write("""        var self = this;
+
+        provider = new firebase.auth.GoogleAuthProvider();
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (!user) {
+                document.getElementById("authScreen").style.visibility = "visible";
+                document.getElementById("loading").style.visibility = "hidden";
+            } else {
+                document.getElementById("authScreen").style.visibility = "hidden";
+                document.getElementById("loading").style.visibility = "visible";
+                $location.path('/manage-class');
+                $rootScope.$apply(function() {
+                    $location.path(\"/""" + kebab_case(home_module) + """\");
+                });
+            }
+        });
+
+        self.signIn = function () {
+            firebase.auth().signInWithRedirect(provider);
+        };
+
+
+        firebase.auth().getRedirectResult().then(function(result) {
+            if (result.credential) {
+                // This gives you a Google Access Token. You can use it to access the Google API.
+                var token = result.credential.accessToken;
+                // ...
+            }
+
+            if (result.user && $location.path() == "/auth") {
+                $rootScope.$apply(function() {
+                    $location.path(\"/""" + kebab_case(home_module) + """\");
+                    // console.log($location.path());
+                });
+            }
+            var user = result.user;
+        }).catch(function(error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            // The email of the user's account used.
+            var email = error.email;
+            // The firebase.auth.AuthCredential type that was used.
+            var credential = error.credential;
+            // ...
+        });
+
+    }]
+});""")
+    output_file.close()
+
+    filename = os.path.join(module_dir, "login.template.html")
+    with open(filename, "w") as output_file:
+        output_file.write("""<div class="row">
+    <div class="col-xs-12" id="loading" style="visibility: visible">
+        <div class="container-fluid" style="text-align: center">
+            <h2>Loading...</h2>
+        </div>
+    </div>
+    <div class="col-xs-12" id="authScreen" style="visibility: hidden">
+        <div class="container-fluid">
+            <div style="text-align: center">
+                <button class="btn btn-raised btn-success" ng-click="$ctrl.signIn()">
+                    Sign in With Google
+                </button>
+                <h2>About """ + project_name + """</h2>
+            <p>""" + project_description + """</p>
+            <p>Created by """ + creator_name + """</p>
+            </div>
+        </div>
+    </div>
+</div>""")
+    output_file.close()
+
+
 # Main logic
 
-print ("""This generator will create the base of your
+print("""This generator will create the base of your
 Node.js + Express + Angular 1 project\n""")
 
-print ("""Note: when entering a module name or the project name,
+print("""Note: when entering a module name or the project name,
 use words separated by spaces.
 Case conversion will take place automatically.""")
 
@@ -744,9 +866,10 @@ if has_github_url:
     print("\nEnter Github repository url in the format:")
     github_url = input("https://github.com/user-name/repository-name\n")
 
-choice = input("Add Firebase boilerplate? [y/N]: ")
-choice = choice.lower()
-firebase_boilerplate = (choice == "y") or (choice == "yes")
+# choice = input("Add Firebase boilerplate? [y/N]: ")
+# choice = choice.lower()
+# firebase_boilerplate = (choice == "y") or (choice == "yes")
+firebase_boilerplate = True
 
 modules = []
 i = 0
@@ -769,13 +892,15 @@ while add_modules:
     choice = choice.lower()
     add_modules = (choice == "y") or (choice == "yes")
 
-choice = input("\nAdd 'about' module? [Y/n]: ")
-choice = choice.lower()
-add_about = not ((choice == "n") or (choice == "no"))
+# choice = input("\nAdd 'about' module? [Y/n]: ")
+# choice = choice.lower()
+# add_about = not ((choice == "n") or (choice == "no"))
+add_about = True
 
-choice = input("\nAdd 'nav-bar' module? [Y/n]: ")
-choice = choice.lower()
-add_navbar = not ((choice == "n") or (choice == "no"))
+# choice = input("\nAdd 'nav-bar' module? [Y/n]: ")
+# choice = choice.lower()
+# add_navbar = not ((choice == "n") or (choice == "no"))
+add_navbar = True
 
 navbar_num = 0
 navbar_themes = ["default", "info", "success", "inverse", "warning", "danger"]
@@ -810,8 +935,8 @@ assets_path = os.path.join(app_path, "assets")
 css_path = os.path.join(app_path, "CSS")
 js_path = os.path.join(app_path, "JS")
 
-print ("\n")
-print ("Creating project...")
+print("\n")
+print("Creating project...")
 create_directory(path)
 create_gitignore()
 create_license()
@@ -840,5 +965,6 @@ if add_about:
     create_about_module()
 if add_navbar:
     create_navbar_module()
+create_login_module()
 
-print("\nFinished.\n\nDon't forget to run npm install from within the project directory")
+print("\nFinished.\n\nDon't forget to run npm install from within the project directory, create the Firebase project from the Firebase console, copy in the credentials and enable login via Google")
