@@ -174,7 +174,7 @@ def create_readmemd():
         output_file.write("# " + project_name + "\n" + project_description)
         output_file.write("""
 
-        """ + str(date.today().year) + """ """ + creator_name)
+""" + str(date.today().year) + """ """ + creator_name)
         output_file.close()
 
 
