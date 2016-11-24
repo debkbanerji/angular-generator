@@ -222,6 +222,7 @@ def create_indexhtml():
         output_file.write("""<!doctype html>
 <html lang="en" data-ng-app=\"""" + camel_case(project_name) + """App\">
 <head>
+    <link rel='shortcut icon' href='/assets/favicon.png' type='image/x-icon'/>
     <meta charset="utf-8">
     <base href="/">
     <title>""" + project_name + """</title>
