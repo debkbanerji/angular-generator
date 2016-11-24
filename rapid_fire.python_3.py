@@ -626,6 +626,7 @@ def create_about_module():
         <div class="container-fluid">
             <h2>About """ + project_name + """</h2>
             <p>""" + project_description + """</p>
+            <p>Created by """ + creator_name + """</p>
         </div>
     </div>
 </div>""")
