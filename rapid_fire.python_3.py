@@ -205,7 +205,7 @@ def create_packagejson():
             output_file.write("""  \"bugs\": {
     \"url\": \"""" + github_url + """/issues\"
   },\n""")
-        output_file.write("""  \"homepage\": \"""" + github_url + """#readme\",\n""")
+            output_file.write("""  \"homepage\": \"""" + github_url + """#readme\",\n""")
 
         output_file.write("""  \"dependencies\": {
     \"body-parser\": \"^1.15.2\",
@@ -324,11 +324,9 @@ def create_indexhtml():
 </head>
 <body>
 
-<a href="/""" + kebab_case(home_module) + """\">
-    <div class="jumbotron heading" style="width: 100vw">
-        <h1 class="heading">""" + project_name + """</h1>
-    </div>
-</a>
+<div class="jumbotron heading" style="width: 100vw">
+    <h1 class="heading">""" + project_name + """</h1>
+</div>
 """)
         # if add_navbar:
         # output_file.write("\n<nav-bar></nav-bar>\n")
