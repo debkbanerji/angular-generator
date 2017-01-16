@@ -843,28 +843,28 @@ print("""Note: when entering a module name or the project name,
 use words separated by spaces.
 Case conversion will take place automatically.""")
 
-creator_name = input("\nEnter project creator name:\n")
+creator_name = raw_input("\nEnter project creator name:\n")
 
-project_name = input("\nEnter project name:\n")
+project_name = raw_input("\nEnter project name:\n")
 
-project_description = input("\nEnter project description:\n")
+project_description = raw_input("\nEnter project description:\n")
 
 path = kebab_case(project_name)
-path = input(
+path = raw_input(
     "\nEnter name of project directory (Default: " + path + "):\nNote: if the directory does not exist, it will be created\n")
 if path == "":
     path = kebab_case(project_name)
 
 # Asking about GitHub repo
-choice = input("Specify Github repository? [y/N]:")
+choice = raw_input("Specify Github repository? [y/N]:")
 choice = choice.lower()
 has_github_url = (choice == "y") or (choice == "yes")
 
 if has_github_url:
     print("\nEnter Github repository url in the format:")
-    github_url = input("https://github.com/user-name/repository-name\n")
+    github_url = raw_input("https://github.com/user-name/repository-name\n")
 
-# choice = input("Add Firebase boilerplate? [y/N]: ")
+# choice = raw_input("Add Firebase boilerplate? [y/N]: ")
 # choice = choice.lower()
 # firebase_boilerplate = (choice == "y") or (choice == "yes")
 firebase_boilerplate = True
@@ -872,30 +872,30 @@ firebase_boilerplate = True
 modules = []
 i = 0
 
-home_module = input("\nEnter name of home module (Default: 'Home'):\n")
+home_module = raw_input("\nEnter name of home module (Default: 'Home'):\n")
 if home_module == "":
     home_module = "Home"
 
-choice = input("Add more modules? (Current number of modules: " + str(1) + ") [y/N]: ")
+choice = raw_input("Add more modules? (Current number of modules: " + str(1) + ") [y/N]: ")
 choice = choice.lower()
 add_modules = (choice == "y") or (choice == "yes")
 
 while add_modules:
     module_name = ""
     while module_name == "":
-        module_name = input("Enter module name:\n")
+        module_name = raw_input("Enter module name:\n")
     if not modules.__contains__(module_name):
         modules.append(module_name)
-    choice = input("Add more modules? (Current number of modules: " + str(len(modules) + 1) + ") [y/N]: ")
+    choice = raw_input("Add more modules? (Current number of modules: " + str(len(modules) + 1) + ") [y/N]: ")
     choice = choice.lower()
     add_modules = (choice == "y") or (choice == "yes")
 
-# choice = input("\nAdd 'about' module? [Y/n]: ")
+# choice = raw_input("\nAdd 'about' module? [Y/n]: ")
 # choice = choice.lower()
 # add_about = not ((choice == "n") or (choice == "no"))
 add_about = True
 
-# choice = input("\nAdd 'nav-bar' module? [Y/n]: ")
+# choice = raw_input("\nAdd 'nav-bar' module? [Y/n]: ")
 # choice = choice.lower()
 # add_navbar = not ((choice == "n") or (choice == "no"))
 add_navbar = True
@@ -907,12 +907,12 @@ navbar_highlight = ["19a094", "1cb1f5", "5eb761", "5262bc", "ff6738", "f5554a"]
 if add_navbar:
     module_in_nav_bar = []
     for index in range(len(modules)):
-        choice = input("Add '" + modules[index] + "' to nav bar? [Y/n]: ")
+        choice = raw_input("Add '" + modules[index] + "' to nav bar? [Y/n]: ")
         choice = choice.lower()
         module_in_nav_bar.append(not ((choice == "n") or (choice == "no")))
 
     try:
-        navbar_num = int(input("""\nEnter number to choose nav bar color:
+        navbar_num = int(raw_input("""\nEnter number to choose nav bar color:
 0 - teal
 1 - light blue
 2 - light green
